@@ -2,6 +2,8 @@
 
 package lesson2
 
+import java.io.File
+
 /**
  * Получение наибольшей прибыли (она же -- поиск максимального подмассива)
  * Простая
@@ -27,7 +29,30 @@ package lesson2
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
 fun optimizeBuyAndSell(inputName: String): Pair<Int, Int> {
-    TODO()
+    val numbers = File(inputName).readLines().map { it.toInt() }
+    val dif = mutableListOf<Int>()
+    for (i in 0..numbers.size - 2) {
+        dif.add(numbers[i + 1] - numbers[i])
+    }
+    //Алгоритм Кадана
+    var ans = dif[0]
+    var ansLeft = 0
+    var ansRight = 0
+    var sum = 0
+    var minPosition = -1
+    for (r in 0 until dif.size) {
+        sum += dif[r]
+        if (sum > ans) {
+            ans = sum
+            ansLeft = minPosition + 1
+            ansRight = r
+        }
+        if (sum < 0) {
+            sum = 0
+            minPosition = r
+        }
+    }
+    return Pair(ansLeft + 1, ansRight + 2)
 }
 
 /**
@@ -80,7 +105,11 @@ fun optimizeBuyAndSell(inputName: String): Pair<Int, Int> {
  * но приветствуется попытка решить её самостоятельно.
  */
 fun josephTask(menNumber: Int, choiceInterval: Int): Int {
-    TODO()
+    var res = 1
+    for (i in 2..menNumber) {
+        res = (res + choiceInterval - 1) % i + 1
+    }
+    return res
 }
 
 /**
@@ -109,5 +138,22 @@ fun longestCommonSubstring(first: String, second: String): String {
  * Единица простым числом не считается.
  */
 fun calcPrimesNumber(limit: Int): Int {
-    TODO()
+    if (limit <= 1) return 0
+    if (limit == 2) return 1
+    var count = limit - 1
+    val n = mutableListOf<Boolean>()
+    for (i in 1..limit) n.add(true)
+    var k = 2
+    while (k + 1 < limit) {
+        var i = k - 1
+        while (i + k < limit) {
+            i += k
+            if (n[i]) {
+                count--
+                n[i] = false
+            }
+        }
+        k += 1
+    }
+    return count
 }

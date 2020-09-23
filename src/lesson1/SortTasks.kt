@@ -2,6 +2,8 @@
 
 package lesson1
 
+import java.io.File
+
 /**
  * Сортировка времён
  *
@@ -33,7 +35,36 @@ package lesson1
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
 fun sortTimes(inputName: String, outputName: String) {
-    TODO()
+    data class Time(
+        val hours: Int,
+        val minutes: Int,
+        val seconds: Int
+    )
+
+    fun String.toTime(): Time {
+        val timeFormat = Regex("""^\d\d:\d\d:\d\d [A|P]M$""")
+        require(timeFormat.matches(this))
+        val result = mutableListOf<Int>()
+
+        val parts = this.split(' ')
+        parts.first().split(':').forEach {
+            result += it.toInt()
+        }
+
+        if (result[0] == 12) {
+            if (parts.last() == "AM") result[0] = 0
+        } else {
+            if (parts.last() == "PM") result[0] += 12
+        }
+
+        return Time(result[0], result[1], result[2])
+    }
+
+    File(outputName).writeText(
+        File(inputName).readLines().map { Pair(it, it.toTime()) }
+            .sortedWith(compareBy({ it.second.hours }, { it.second.minutes }, { it.second.seconds }))
+            .joinToString(separator = "\n") { it.first }
+    )
 }
 
 /**
@@ -63,7 +94,52 @@ fun sortTimes(inputName: String, outputName: String) {
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
 fun sortAddresses(inputName: String, outputName: String) {
-    TODO()
+    data class Person(
+        val lastname: String,
+        val firstname: String,
+    )
+
+    data class Address(
+        val streetName: String,
+        val houseNumber: Int
+    )
+
+    fun String.toAddress(): Pair<Person, Address> {
+        val addressFormat = Regex("""^\S+ \S+ - \S+ \d+$""")
+        require(addressFormat.matches(this))
+        val result = mutableListOf<String>()
+
+        val parts = this.split(" - ")
+        result += parts.first().split(' ')
+        result += parts.last().split(' ')
+
+        val person = Person(result[0], result[1])
+        val address = Address(result[2], result[3].toInt())
+
+        return person to address
+    }
+
+    val addresses = File(inputName).readLines().map { it.toAddress() }
+        .sortedWith(compareBy(
+            { it.second.streetName },
+            { it.second.houseNumber },
+            { it.first.lastname },
+            { it.first.firstname }
+        ))
+
+    val outputStream = File(outputName).bufferedWriter()
+    var previousAddress: Address? = null
+    for (address in addresses) {
+        if (previousAddress == null || address.second != previousAddress)
+            outputStream.write(
+                "${if (previousAddress != null) "\n" else ""}${address.second.streetName} " +
+                        "${address.second.houseNumber} - ${address.first.lastname} ${address.first.firstname}"
+            )
+        else
+            outputStream.write(", ${address.first.lastname} ${address.first.firstname}")
+        previousAddress = address.second
+    }
+    outputStream.close()
 }
 
 /**
@@ -97,7 +173,8 @@ fun sortAddresses(inputName: String, outputName: String) {
  * 121.3
  */
 fun sortTemperatures(inputName: String, outputName: String) {
-    TODO()
+    File(outputName).writeText(File(inputName).readLines().map { it.toDouble() }
+        .sorted().joinToString(separator = "\n"))
 }
 
 /**
@@ -130,7 +207,23 @@ fun sortTemperatures(inputName: String, outputName: String) {
  * 2
  */
 fun sortSequence(inputName: String, outputName: String) {
-    TODO()
+    val numbers = File(inputName).readLines().map { it.toInt() }
+    val mode = mutableMapOf<Int, Int>()
+    for (n in numbers) mode[n] = mode.getOrDefault(n, 0) + 1
+    var maxCountNum: Pair<Int?, Int?> = null to null
+    for ((num, count) in mode.entries) {
+        if (maxCountNum.second == null || maxCountNum.second!! < count)
+            maxCountNum = num to count
+        if (maxCountNum.second!! == count && num < maxCountNum.first!!)
+            maxCountNum = num to count
+    }
+    val res = mutableListOf<Int>()
+    for (num in numbers)
+        if (num != maxCountNum.first)
+            res.add(num)
+    for (i in 1..maxCountNum.second!!)
+        res.add(maxCountNum.first!!)
+    File(outputName).writeText(res.joinToString(separator = "\n"))
 }
 
 /**
