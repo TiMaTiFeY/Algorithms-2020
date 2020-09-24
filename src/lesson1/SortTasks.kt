@@ -35,6 +35,8 @@ import java.io.File
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
 fun sortTimes(inputName: String, outputName: String) {
+    //Асимптотика O(NlogN)
+    //Ресурсоемкость O(N)
     data class Time(
         val hours: Int,
         val minutes: Int,
@@ -94,6 +96,8 @@ fun sortTimes(inputName: String, outputName: String) {
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
 fun sortAddresses(inputName: String, outputName: String) {
+    //Асимптотика O(NlogN)
+    //Ресурсоемкость O(N)
     data class Person(
         val lastname: String,
         val firstname: String,
@@ -173,8 +177,25 @@ fun sortAddresses(inputName: String, outputName: String) {
  * 121.3
  */
 fun sortTemperatures(inputName: String, outputName: String) {
-    File(outputName).writeText(File(inputName).readLines().map { it.toDouble() }
-        .sorted().joinToString(separator = "\n"))
+    //Асимптотика O(N)
+    //Ресурсоемкость O(1)
+    val numberOfPossibleValues = 5000 - (-2730) + 1
+    val countOfValues = mutableListOf<Int>()
+    for (i in 1..numberOfPossibleValues) countOfValues.add(0)
+    for (n in File(inputName).readLines()) {
+        val index = ((n.toDouble() * 10).toInt() + 2730)
+        countOfValues[index]++
+    }
+    val outputStream = File(outputName).bufferedWriter()
+    for ((index, value) in countOfValues.withIndex()) {
+        if (value != 0) {
+            val n = (index - 2730) / 10.0
+            for (i in 1..value) {
+                outputStream.write("$n\n")
+            }
+        }
+    }
+    outputStream.close()
 }
 
 /**
@@ -207,6 +228,8 @@ fun sortTemperatures(inputName: String, outputName: String) {
  * 2
  */
 fun sortSequence(inputName: String, outputName: String) {
+    //Асимптотика O(N)
+    //Ресурсоемкость O(N)
     val numbers = File(inputName).readLines().map { it.toInt() }
     val mode = mutableMapOf<Int, Int>()
     for (n in numbers) mode[n] = mode.getOrDefault(n, 0) + 1
@@ -217,13 +240,13 @@ fun sortSequence(inputName: String, outputName: String) {
         if (maxCountNum.second!! == count && num < maxCountNum.first!!)
             maxCountNum = num to count
     }
-    val res = mutableListOf<Int>()
+    val outputStream = File(outputName).bufferedWriter()
     for (num in numbers)
         if (num != maxCountNum.first)
-            res.add(num)
+            outputStream.write("$num\n")
     for (i in 1..maxCountNum.second!!)
-        res.add(maxCountNum.first!!)
-    File(outputName).writeText(res.joinToString(separator = "\n"))
+        outputStream.write("${maxCountNum.first!!}\n")
+    outputStream.close()
 }
 
 /**
@@ -241,6 +264,8 @@ fun sortSequence(inputName: String, outputName: String) {
  * Результат: second = [1 3 4 9 9 13 15 20 23 28]
  */
 fun <T : Comparable<T>> mergeArrays(first: Array<T>, second: Array<T?>) {
+    //Асимптотика O(NlogN)
+    //Ресурсоемкость O(N)
     for (i in first.indices) second[i] = first[i]
     second.sort()
 }

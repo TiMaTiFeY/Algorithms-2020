@@ -29,6 +29,8 @@ import java.io.File
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
 fun optimizeBuyAndSell(inputName: String): Pair<Int, Int> {
+    //Асимптотика O(N)
+    //Ресурсоемкость O(N)
     val numbers = File(inputName).readLines().map { it.toInt() }
     val dif = mutableListOf<Int>()
     for (i in 0..numbers.size - 2) {
@@ -105,6 +107,9 @@ fun optimizeBuyAndSell(inputName: String): Pair<Int, Int> {
  * но приветствуется попытка решить её самостоятельно.
  */
 fun josephTask(menNumber: Int, choiceInterval: Int): Int {
+    //Рекурентный способ из Википедии
+    //Асимптотика O(N)
+    //Ресурсоемкость O(1)
     var res = 1
     for (i in 2..menNumber) {
         res = (res + choiceInterval - 1) % i + 1
@@ -124,7 +129,27 @@ fun josephTask(menNumber: Int, choiceInterval: Int): Int {
  * вернуть ту из них, которая встречается раньше в строке first.
  */
 fun longestCommonSubstring(first: String, second: String): String {
-    TODO()
+    //Асимптотика O(first.length * second.length)
+    //Ресурсоемкость O(first.length * second.length)
+    val mapOfSubstring = mutableListOf<MutableList<Int>>()
+    var maxNum = 0
+    var maxPos = 0 to 0
+    for (i in 0..first.length) {
+        val line = mutableListOf<Int>()
+        for (j in 0..second.length)
+            line.add(
+                if (!(i == 0 || j == 0) && first[i - 1] == second[j - 1]) {
+                    val k = mapOfSubstring[i - 1][j - 1] + 1
+                    if (k > maxNum) {
+                        maxNum = k
+                        maxPos = i to j
+                    }
+                    k
+                } else 0
+            )
+        mapOfSubstring.add(line)
+    }
+    return first.substring(maxPos.first - maxNum, maxPos.first)
 }
 
 /**
@@ -138,6 +163,8 @@ fun longestCommonSubstring(first: String, second: String): String {
  * Единица простым числом не считается.
  */
 fun calcPrimesNumber(limit: Int): Int {
+    //Асимптотика O(Nlog(log(N)))
+    //Ресурсоемкость O(N)
     if (limit <= 1) return 0
     if (limit == 2) return 1
     var count = limit - 1
