@@ -30,6 +30,28 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
         }
     }
 
+    private fun findParent(value: T): Pair<Node<T>, Int>? =
+        root?.let { findParent(it, value) }
+
+    private fun findParent(start: Node<T>, value: T): Pair<Node<T>, Int> {
+        var comparisonLeft: Int?
+        var comparisonRight: Int?
+        if (start.left != null) {
+            comparisonLeft = value.compareTo(start.left!!.value)
+            if (comparisonLeft == 0) return start to -1
+        }
+        if (start.right != null) {
+            comparisonRight = value.compareTo(start.right!!.value)
+            if (comparisonRight == 0) return start to 1
+        }
+        val comparison = value.compareTo(start.value)
+        return when {
+            comparison == 0 -> start to 0
+            comparison < 0 -> start.left?.let { findParent(it, value) } ?: start to 0
+            else -> start.right?.let { findParent(it, value) } ?: start to 0
+        }
+    }
+
     override operator fun contains(element: T): Boolean {
         val closest = find(element)
         return closest != null && element.compareTo(closest.value) == 0
@@ -80,7 +102,29 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
      * Средняя
      */
     override fun remove(element: T): Boolean {
-        TODO()
+        val closest = findParent(element)
+        if (closest == null) return false
+        when (closest.second) {
+
+        }
+        val comparison = if (closest == null) -1 else element.compareTo(closest.value)
+        if (comparison == 0) {
+            return false
+        }
+        val newNode = Node(element)
+        when {
+            closest == null -> root = newNode
+            comparison < 0 -> {
+                assert(closest.left == null)
+                closest.left = newNode
+            }
+            else -> {
+                assert(closest.right == null)
+                closest.right = newNode
+            }
+        }
+        size++
+        return true
     }
 
     override fun comparator(): Comparator<in T>? =

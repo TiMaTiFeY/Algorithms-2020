@@ -180,7 +180,9 @@ fun calcPrimesNumber(limit: Int): Int {
                 n[i] = false
             }
         }
-        k += 1
+        do {
+            k += 1
+        } while (k < limit && !n[k - 1])
     }
     return count
 }
