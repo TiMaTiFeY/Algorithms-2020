@@ -102,29 +102,30 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
      * Средняя
      */
     override fun remove(element: T): Boolean {
-        val closest = findParent(element)
-        if (closest == null) return false
-        when (closest.second) {
-
-        }
-        val comparison = if (closest == null) -1 else element.compareTo(closest.value)
-        if (comparison == 0) {
-            return false
-        }
-        val newNode = Node(element)
-        when {
-            closest == null -> root = newNode
-            comparison < 0 -> {
-                assert(closest.left == null)
-                closest.left = newNode
-            }
-            else -> {
-                assert(closest.right == null)
-                closest.right = newNode
-            }
-        }
-        size++
-        return true
+//        val closest = findParent(element)
+//        if (closest == null) return false
+//        when (closest.second) {
+//
+//        }
+//        val comparison = if (closest == null) -1 else element.compareTo(closest.value)
+//        if (comparison == 0) {
+//            return false
+//        }
+//        val newNode = Node(element)
+//        when {
+//            closest == null -> root = newNode
+//            comparison < 0 -> {
+//                assert(closest.left == null)
+//                closest.left = newNode
+//            }
+//            else -> {
+//                assert(closest.right == null)
+//                closest.right = newNode
+//            }
+//        }
+//        size++
+//        return true
+        TODO()
     }
 
     override fun comparator(): Comparator<in T>? =

@@ -2,9 +2,6 @@
 
 package lesson7
 
-import java.lang.Integer.min
-import kotlin.math.max
-
 /**
  * Наибольшая общая подпоследовательность.
  * Средняя
@@ -18,35 +15,53 @@ import kotlin.math.max
  * При сравнении подстрок, регистр символов *имеет* значение.
  */
 fun longestCommonSubSequence(first: String, second: String): String {
-    val mapOfSubstring = mutableListOf<MutableList<Int>>()
+    val mapOfSubstring = mutableListOf<MutableList<Pair<Int, Pair<Int, Int>>>>()
+    val maxLine: String
+    val minLine: String
+    if (first.length >= second.length) {
+        maxLine = first
+        minLine = second
+    } else {
+        maxLine = second
+        minLine = first
+    }
     var maxNum = 0
-    var maxPos = 0 to 0
-    println(first)
-    println(second)
-    for (i in 0..min(first.length, second.length)) {
-        val line = mutableListOf<Int>()
-        for (j in 0..max(first.length, second.length))
+    var maxPos = -1 to -1
+    for (i in 0..minLine.length) {
+        val line = mutableListOf<Pair<Int, Pair<Int, Int>>>()
+        for (j in 0..maxLine.length)
             line.add(
-                if (!(i == 0 || j == 0) && first[i - 1] == second[j - 1]) {
-                    var delta = 1
-                    while (i - delta != 0
-                        && j - delta != 0
-                        && mapOfSubstring[i - delta][j - delta] != 0
-                    ) delta++
-                    val k = mapOfSubstring[i - delta][j - delta] + 1
-                    if (k > maxNum) {
-                        maxNum = k
+                if (i != 0 && j != 0 && minLine[i - 1] == maxLine[j - 1]) {
+                    var topFound = 1 to (-1 to -1)
+                    mainLoop@ for (deltaI in 1 until i)
+                        for (deltaJ in 1 until j) {
+                            if (mapOfSubstring[i - deltaI][j - deltaJ].first != 0) {
+                                if (mapOfSubstring[i - deltaI][j - deltaJ].first >= topFound.first) {
+                                    topFound =
+                                        mapOfSubstring[i - deltaI][j - deltaJ].first + 1 to ((i - deltaI) to (j - deltaJ))
+                                }
+                                if (topFound.first - 1 == maxNum) break@mainLoop
+                            }
+                        }
+                    if (topFound.first > maxNum) {
+                        maxNum = topFound.first
                         maxPos = i to j
                     }
-                    k
-                } else 0
+                    topFound
+                } else 0 to Pair(-1, -1)
             )
         mapOfSubstring.add(line)
     }
-    println(mapOfSubstring.joinToString(separator = "\n") {
-        it.joinToString(separator = " ")
-    })
-    return ""
+    val sb = StringBuilder()
+    var pr = maxNum
+    var prPos = maxPos
+    while (pr != 0) {
+        sb.append(maxLine[prPos.second - 1])
+        prPos = mapOfSubstring[prPos.first][prPos.second].second
+        pr--
+    }
+    sb.reverse()
+    return sb.toString()
 }
 
 /**
