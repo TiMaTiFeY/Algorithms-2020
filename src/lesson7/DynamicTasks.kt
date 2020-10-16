@@ -2,6 +2,9 @@
 
 package lesson7
 
+import java.io.File
+import kotlin.math.min
+
 /**
  * Наибольшая общая подпоследовательность.
  * Средняя
@@ -15,7 +18,9 @@ package lesson7
  * При сравнении подстрок, регистр символов *имеет* значение.
  */
 fun longestCommonSubSequence(first: String, second: String): String {
-    val mapOfSubstring = mutableListOf<MutableList<Pair<Int, Pair<Int, Int>>>>()
+    //Асимптотика O(N*M)
+    //Ресурсоемкость O(N*M)
+
     val maxLine: String
     val minLine: String
     if (first.length >= second.length) {
@@ -25,40 +30,43 @@ fun longestCommonSubSequence(first: String, second: String): String {
         maxLine = second
         minLine = first
     }
+
+    val mapOfSubstring = Array(minLine.length + 1) { Array(maxLine.length + 1) { 0 } }
+    val indicesOfMaxSubstring = Array(minLine.length + 1) { Array(maxLine.length + 1) { -1 to -1 } }
+
     var maxNum = 0
     var maxPos = -1 to -1
-    for (i in 0..minLine.length) {
-        val line = mutableListOf<Pair<Int, Pair<Int, Int>>>()
-        for (j in 0..maxLine.length)
-            line.add(
-                if (i != 0 && j != 0 && minLine[i - 1] == maxLine[j - 1]) {
-                    var topFound = 1 to (-1 to -1)
-                    mainLoop@ for (deltaI in 1 until i)
-                        for (deltaJ in 1 until j) {
-                            if (mapOfSubstring[i - deltaI][j - deltaJ].first != 0) {
-                                if (mapOfSubstring[i - deltaI][j - deltaJ].first >= topFound.first) {
-                                    topFound =
-                                        mapOfSubstring[i - deltaI][j - deltaJ].first + 1 to ((i - deltaI) to (j - deltaJ))
-                                }
-                                if (topFound.first - 1 == maxNum) break@mainLoop
-                            }
-                        }
-                    if (topFound.first > maxNum) {
-                        maxNum = topFound.first
-                        maxPos = i to j
+
+    for (i in 1..minLine.length)
+        for (j in 1..maxLine.length) {
+            mapOfSubstring[i][j] =
+                if (minLine[i - 1] == maxLine[j - 1]) {
+                    indicesOfMaxSubstring[i][j] = (i - 1) to (j - 1)
+                    mapOfSubstring[i - 1][j - 1] + 1
+                } else {
+                    if (mapOfSubstring[i - 1][j] >= mapOfSubstring[i][j - 1]) {
+                        indicesOfMaxSubstring[i][j] = (i - 1) to j
+                        mapOfSubstring[i - 1][j]
+                    } else {
+                        indicesOfMaxSubstring[i][j] = i to (j - 1)
+                        mapOfSubstring[i][j - 1]
                     }
-                    topFound
-                } else 0 to Pair(-1, -1)
-            )
-        mapOfSubstring.add(line)
-    }
+                }
+            if (mapOfSubstring[i][j] > maxNum) {
+                maxNum = mapOfSubstring[i][j]
+                maxPos = i to j
+            }
+        }
+
     val sb = StringBuilder()
-    var pr = maxNum
+    var count = maxNum
     var prPos = maxPos
-    while (pr != 0) {
-        sb.append(maxLine[prPos.second - 1])
-        prPos = mapOfSubstring[prPos.first][prPos.second].second
-        pr--
+    while (count != 0) {
+        if (maxLine[prPos.second - 1] == minLine[prPos.first - 1]) {
+            sb.append(maxLine[prPos.second - 1])
+            count--
+        }
+        prPos = indicesOfMaxSubstring[prPos.first][prPos.second]
     }
     sb.reverse()
     return sb.toString()
@@ -77,7 +85,39 @@ fun longestCommonSubSequence(first: String, second: String): String {
  * В примере ответами являются 2, 8, 9, 12 или 2, 5, 9, 12 -- выбираем первую из них.
  */
 fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
-    TODO()
+    //Асимптотика O(N^2)
+    //Ресурсоемкость O(N)
+    if (list.isEmpty()) return list
+    val d = Array(list.size) { 0 }
+    val k = Array(list.size) { 0 }
+    d[0] = 1
+    k[0] = 0
+    var maxD = 1
+    var indMaxD = 0
+    for (i in 1 until list.size) {
+        var maxCurrD = 0
+        var ind = i
+        for (j in 0 until i)
+            if (d[j] > maxCurrD && list[i] > list[j]) {
+                maxCurrD = d[j]
+                ind = j
+            }
+        d[i] = maxCurrD + 1
+        k[i] = ind
+        if (d[i] > maxD) {
+            maxD = d[i]
+            indMaxD = i
+        }
+    }
+    var count = maxD
+    val result = mutableListOf<Int>()
+    var nextInd = indMaxD
+    do {
+        result.add(0, list[nextInd])
+        nextInd = k[nextInd]
+        count--
+    } while (count != 0)
+    return result
 }
 
 /**
@@ -101,7 +141,21 @@ fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
  * Здесь ответ 2 + 3 + 4 + 1 + 2 = 12
  */
 fun shortestPathOnField(inputName: String): Int {
-    TODO()
+    //Асимптотика O(N)
+    //Ресурсоемкость O(N)
+    val board = File(inputName).readLines().map { it.split(' ').map { it1 -> it1.toInt() } }
+    val height = board.size
+    val width = board[0].size
+    val d = Array(height) { IntArray(width) { 0 } }
+    d[0][0] = board[0][0]
+    for (i in 1 until height) d[i][0] = d[i - 1][0] + board[i][0]
+    for (j in 1 until width) d[0][j] = d[0][j - 1] + board[0][j]
+
+    for (i in 1 until height)
+        for (j in 1 until width)
+            d[i][j] = min(d[i - 1][j], min(d[i - 1][j - 1], d[i][j - 1])) + board[i][j]
+
+    return d[height - 1][width - 1]
 }
 
 // Задачу "Максимальное независимое множество вершин в графе без циклов"
