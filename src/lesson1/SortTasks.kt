@@ -131,19 +131,20 @@ fun sortAddresses(inputName: String, outputName: String) {
             { it.first.firstname }
         ))
 
-    val outputStream = File(outputName).bufferedWriter()
-    var previousAddress: Address? = null
-    for (address in addresses) {
-        if (previousAddress == null || address.second != previousAddress)
-            outputStream.write(
-                "${if (previousAddress != null) "\n" else ""}${address.second.streetName} " +
-                        "${address.second.houseNumber} - ${address.first.lastname} ${address.first.firstname}"
-            )
-        else
-            outputStream.write(", ${address.first.lastname} ${address.first.firstname}")
-        previousAddress = address.second
+    File(outputName).bufferedWriter().use {
+        var previousAddress: Address? = null
+        for (address in addresses) {
+            if (previousAddress == null || address.second != previousAddress)
+                it.write(
+                    "${if (previousAddress != null) "\n" else ""}${address.second.streetName} " +
+                            "${address.second.houseNumber} - ${address.first.lastname} ${address.first.firstname}"
+                )
+            else
+                it.write(", ${address.first.lastname} ${address.first.firstname}")
+            previousAddress = address.second
+        }
+        it.close()
     }
-    outputStream.close()
 }
 
 /**
@@ -186,16 +187,17 @@ fun sortTemperatures(inputName: String, outputName: String) {
         val index = ((n.toDouble() * 10).toInt() + 2730)
         countOfValues[index]++
     }
-    val outputStream = File(outputName).bufferedWriter()
-    for ((index, value) in countOfValues.withIndex()) {
-        if (value != 0) {
-            val n = (index - 2730) / 10.0
-            for (i in 1..value) {
-                outputStream.write("$n\n")
+    File(outputName).bufferedWriter().use {
+        for ((index, value) in countOfValues.withIndex()) {
+            if (value != 0) {
+                val n = (index - 2730) / 10.0
+                for (i in 1..value) {
+                    it.write("$n\n")
+                }
             }
         }
+        it.close()
     }
-    outputStream.close()
 }
 
 /**
@@ -240,13 +242,14 @@ fun sortSequence(inputName: String, outputName: String) {
         if (maxCountNum.second!! == count && num < maxCountNum.first!!)
             maxCountNum = num to count
     }
-    val outputStream = File(outputName).bufferedWriter()
-    for (num in numbers)
-        if (num != maxCountNum.first)
-            outputStream.write("$num\n")
-    for (i in 1..maxCountNum.second!!)
-        outputStream.write("${maxCountNum.first!!}\n")
-    outputStream.close()
+    File(outputName).bufferedWriter().use {
+        for (num in numbers)
+            if (num != maxCountNum.first)
+                it.write("$num\n")
+        for (i in 1..maxCountNum.second!!)
+            it.write("${maxCountNum.first!!}\n")
+        it.close()
+    }
 }
 
 /**
@@ -264,9 +267,16 @@ fun sortSequence(inputName: String, outputName: String) {
  * Результат: second = [1 3 4 9 9 13 15 20 23 28]
  */
 fun <T : Comparable<T>> mergeArrays(first: Array<T>, second: Array<T?>) {
-    //Асимптотика O(NlogN)
+    //Асимптотика O(N)
     //Ресурсоемкость O(N)
-    for (i in first.indices) second[i] = first[i]
-    second.sort()
+    var firstI = 0
+    var secondI = first.size
+    for (i in second.indices)
+        second[i] = when {
+            firstI == first.size -> second[secondI++]
+            secondI == second.size -> first[firstI++]
+            first[firstI] < second[secondI]!! -> first[firstI++]
+            else -> second[secondI++]
+        }
 }
 

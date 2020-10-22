@@ -3,6 +3,7 @@
 package lesson7
 
 import java.io.File
+import kotlin.math.max
 import kotlin.math.min
 
 /**
@@ -84,9 +85,48 @@ fun longestCommonSubSequence(first: String, second: String): String {
  * то вернуть ту, в которой числа расположены раньше (приоритет имеют первые числа).
  * В примере ответами являются 2, 8, 9, 12 или 2, 5, 9, 12 -- выбираем первую из них.
  */
+
+
 fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
-    //Асимптотика O(N^2)
+    //Асимптотика O(N*logN)
     //Ресурсоемкость O(N)
+//    fun upperBound(array: Array<Int>, x: Int): Int {
+//        var l = 0
+//        var r = array.size - 1
+//        while (r - l > 1) {
+//            val m = (l + r) / 2
+//            if (array[m] < x)
+//                l = m
+//            else
+//                r = m
+//        }
+//        return r
+//    }
+//    if (list.isEmpty()) return list
+//    val d = Array(list.size + 1) { Int.MAX_VALUE }
+//    val pos = Array(list.size + 1) { 0 }
+//    val prev = Array(list.size) { 0 }
+//    var length = 0
+//
+//    d[0] = Int.MIN_VALUE
+//    pos[0] = -1
+//
+//    for (i in list.indices) {
+//        val j = upperBound(d, list[i])
+//        if (d[j - 1] < list[i] && d[j] > list[i]) {
+//            d[j] = list[i]
+//            pos[j] = i
+//            prev[i] = pos[j - 1]
+//            length = max(length, j)
+//        }
+//    }
+//    val answer: MutableList<Int> = mutableListOf()
+//    var p = pos[length]
+//    while (p != -1) {
+//        answer.add(0, list[p])
+//        p = prev[p]
+//    }
+//    return answer
     if (list.isEmpty()) return list
     val d = Array(list.size) { 0 }
     val k = Array(list.size) { 0 }
@@ -141,8 +181,9 @@ fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
  * Здесь ответ 2 + 3 + 4 + 1 + 2 = 12
  */
 fun shortestPathOnField(inputName: String): Int {
-    //Асимптотика O(N)
-    //Ресурсоемкость O(N)
+    //width - ширина поля; height - высота поля
+    //Асимптотика O(width * height)
+    //Ресурсоемкость O(width * height)
     val board = File(inputName).readLines().map { it.split(' ').map { it1 -> it1.toInt() } }
     val height = board.size
     val width = board[0].size
