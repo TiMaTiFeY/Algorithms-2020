@@ -90,74 +90,47 @@ fun longestCommonSubSequence(first: String, second: String): String {
 fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
     //Асимптотика O(N*logN)
     //Ресурсоемкость O(N)
-//    fun upperBound(array: Array<Int>, x: Int): Int {
-//        var l = 0
-//        var r = array.size - 1
-//        while (r - l > 1) {
-//            val m = (l + r) / 2
-//            if (array[m] < x)
-//                l = m
-//            else
-//                r = m
-//        }
-//        return r
-//    }
-//    if (list.isEmpty()) return list
-//    val d = Array(list.size + 1) { Int.MAX_VALUE }
-//    val pos = Array(list.size + 1) { 0 }
-//    val prev = Array(list.size) { 0 }
-//    var length = 0
-//
-//    d[0] = Int.MIN_VALUE
-//    pos[0] = -1
-//
-//    for (i in list.indices) {
-//        val j = upperBound(d, list[i])
-//        if (d[j - 1] < list[i] && d[j] > list[i]) {
-//            d[j] = list[i]
-//            pos[j] = i
-//            prev[i] = pos[j - 1]
-//            length = max(length, j)
-//        }
-//    }
-//    val answer: MutableList<Int> = mutableListOf()
-//    var p = pos[length]
-//    while (p != -1) {
-//        answer.add(0, list[p])
-//        p = prev[p]
-//    }
-//    return answer
+    fun lowerBound(array: Array<Int>, x: Int): Int {
+        var l = 0
+        var r = array.size - 1
+        while (r - l > 1) {
+            val m = (l + r) / 2
+            if (x < array[m])
+                l = m
+            else
+                r = m
+        }
+        return r
+    }
+
     if (list.isEmpty()) return list
-    val d = Array(list.size) { 0 }
-    val k = Array(list.size) { 0 }
-    d[0] = 1
-    k[0] = 0
-    var maxD = 1
-    var indMaxD = 0
-    for (i in 1 until list.size) {
-        var maxCurrD = 0
-        var ind = i
-        for (j in 0 until i)
-            if (d[j] > maxCurrD && list[i] > list[j]) {
-                maxCurrD = d[j]
-                ind = j
-            }
-        d[i] = maxCurrD + 1
-        k[i] = ind
-        if (d[i] > maxD) {
-            maxD = d[i]
-            indMaxD = i
+
+    val d = Array(list.size + 1) { Int.MIN_VALUE }
+    val pos = Array(list.size + 1) { 0 }
+    val prev = Array(list.size) { 0 }
+    var length = 0
+
+    d[0] = Int.MAX_VALUE
+    pos[0] = -1
+
+    for (i in list.size - 1 downTo 0) {
+        val j = lowerBound(d, list[i])
+        if (d[j - 1] > list[i] && d[j] < list[i]) {
+            d[j] = list[i]
+            pos[j] = i
+            prev[i] = pos[j - 1]
+            length = max(length, j)
         }
     }
-    var count = maxD
-    val result = mutableListOf<Int>()
-    var nextInd = indMaxD
-    do {
-        result.add(0, list[nextInd])
-        nextInd = k[nextInd]
-        count--
-    } while (count != 0)
-    return result
+
+    if (length == 1) return listOf(list.first())
+    val answer: MutableList<Int> = mutableListOf()
+    var p = pos[length]
+    while (p != -1) {
+        answer.add(list[p])
+        p = prev[p]
+    }
+    return answer
 }
 
 /**

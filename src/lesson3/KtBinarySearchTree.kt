@@ -1,6 +1,8 @@
 package lesson3
 
+import java.lang.IllegalArgumentException
 import java.util.*
+import kotlin.NoSuchElementException
 import kotlin.math.max
 
 // attention: Comparable is supported but Comparator is not
@@ -127,6 +129,11 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
         BinarySearchTreeIterator()
 
     inner class BinarySearchTreeIterator internal constructor() : MutableIterator<T> {
+
+        private val stack = Stack<Node<T>>()
+        private var current = root
+        private var lastNext: Node<T>? = null
+
         /**
          * Проверка наличия следующего элемента
          *
@@ -137,7 +144,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          *
          * Средняя
          */
-        override fun hasNext(): Boolean = TODO()
+        override fun hasNext(): Boolean = stack.isNotEmpty() || current != null
 
         /**
          * Получение следующего элемента
@@ -153,8 +160,16 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          * Средняя
          */
         override fun next(): T {
-            // TODO
-            throw NotImplementedError()
+            while (current != null) {
+                stack.push(current)
+                current = current?.left
+            }
+            if (!hasNext()) throw NoSuchElementException()
+            current = stack.pop()
+            val value = current?.value
+            lastNext = current!!
+            current = current?.right
+            return value!!
         }
 
         /**
@@ -170,8 +185,9 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          * Сложная
          */
         override fun remove() {
-            // TODO
-            throw NotImplementedError()
+            if (lastNext == null) throw IllegalStateException()
+            remove(lastNext!!.value)
+            lastNext = null
         }
 
     }
@@ -193,6 +209,18 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
      * Очень сложная (в том случае, если спецификация реализуется в полном объёме)
      */
     override fun subSet(fromElement: T, toElement: T): SortedSet<T> {
+//        val listElements = mutableListOf<T>()
+//        if (fromElement == toElement) return Collections.emptySortedSet()
+//        var addingHadStarted = false
+//        for (element in this) {
+//            if (element >= fromElement && element < toElement) {
+//                addingHadStarted = true
+//                listElements.add(element)
+//            } else {
+//                if (addingHadStarted) throw IllegalArgumentException()
+//            }
+//        }
+//        return listElements.toSortedSet()
         TODO()
     }
 
