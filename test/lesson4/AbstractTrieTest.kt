@@ -68,6 +68,7 @@ abstract class AbstractTrieTest {
     }
 
     protected fun doIteratorTest() {
+        //Все тесты случайные, не требуется дополнительные.
         implementationTest { create().iterator().hasNext() }
         implementationTest { create().iterator().next() }
         val random = Random()
@@ -104,7 +105,7 @@ abstract class AbstractTrieTest {
                 controlSet.isEmpty(),
                 "TrieIterator doesn't traverse the entire set."
             )
-            assertFailsWith<IllegalStateException>("Something was supposedly returned after the elements ended") {
+            assertFailsWith<NoSuchElementException>("Something was supposedly returned after the elements ended") {
                 trieIter.next()
             }
             println("All clear!")
@@ -112,6 +113,7 @@ abstract class AbstractTrieTest {
     }
 
     protected fun doIteratorRemoveTest() {
+        //Все тесты случайные, не требуется дополнительные.
         implementationTest { create().iterator().remove() }
         val random = Random()
         for (iteration in 1..100) {
