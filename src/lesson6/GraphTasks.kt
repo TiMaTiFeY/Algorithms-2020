@@ -1,6 +1,8 @@
 @file:Suppress("UNUSED_PARAMETER", "unused")
-
+//НЕ СДЕЛАНО
 package lesson6
+
+import lesson6.Graph.*
 
 /**
  * Эйлеров цикл.
@@ -28,7 +30,67 @@ package lesson6
  * Справка: Эйлеров цикл -- это цикл, проходящий через все рёбра
  * связного графа ровно по одному разу
  */
-fun Graph.findEulerLoop(): List<Graph.Edge> {
+//fun Graph.dfs(start: Vertex, visited: MutableSet<Vertex>) {
+//    getConnections(start)
+//        .filter { it.value.end !in visited }
+//        .forEach {
+//            visited += start
+//            dfs(it.key, visited)
+//        }
+//}
+//
+//fun Graph.deg(vertex: Vertex): Int = this.getConnections(vertex).size
+//
+//fun checkForEulerPath(graph: Graph): Boolean {
+//    val oddVertex = graph.vertices.map { if (graph.deg(it) % 2 != 0) 1 else 0 }.sum()
+//    if (oddVertex > 2) {
+//        return false
+//    }
+//    val visited = mutableSetOf<Vertex>()
+//    for (vertex in graph.vertices) {
+//        if (graph.deg(vertex) > 0) {
+//            graph.dfs(vertex, visited)
+//            break
+//        }
+//    }
+//    for (vertex in graph.vertices) {
+//        if (graph.deg(vertex) > 0 && !visited.contains(vertex)) {
+//            return false
+//        }
+//    }
+//    return true
+//}
+
+fun Graph.findEulerLoop(): List<Edge> {
+//    if (this.vertices.size < 3 || !checkForEulerPath(this)) return listOf()
+//    var v: Vertex? = null
+//    for (vertex in this.vertices) {
+//        if (this.deg(vertex) % 2 != 0) {
+//            v = vertex
+//            break
+//        }
+//    }
+//    if (v == null) return listOf()
+//    val visitedEdges = mutableListOf<Edge>()
+//    val stack = ArrayDeque<Vertex>()
+//    stack.add(v)
+//    while (stack.isNotEmpty()) {
+//        val w = stack.last()
+//        var foundEdge = false
+//        for (edge in this.getConnections(w).values) {
+//            if (!visitedEdges.contains(edge)) {
+//                stack.add(edge.end)
+//                visitedEdges.add(edge)
+//                foundEdge = true
+//                break
+//            }
+//        }
+//        if (!foundEdge) {
+//            stack.removeLast()
+//        }
+//    }
+//    println(visitedEdges)
+//    return visitedEdges
     TODO()
 }
 
@@ -90,7 +152,7 @@ fun Graph.minimumSpanningTree(): Graph {
  *
  * Эта задача может быть зачтена за пятый и шестой урок одновременно
  */
-fun Graph.largestIndependentVertexSet(): Set<Graph.Vertex> {
+fun Graph.largestIndependentVertexSet(): Set<Vertex> {
     TODO()
 }
 

@@ -3,6 +3,7 @@ package lesson3
 import java.lang.IllegalArgumentException
 import java.util.*
 import kotlin.NoSuchElementException
+import kotlin.collections.ArrayDeque
 import kotlin.math.max
 
 // attention: Comparable is supported but Comparator is not
@@ -98,6 +99,8 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
      */
 
     override fun remove(element: T): Boolean {
+        //Производительность O(N) - полностью зависит от find(). Т.к. дерево без балансировки, то за линию
+        //Ресурсоемкость O(1)
         val closestElement = find(element) ?: return false
         if (closestElement.value != element) return false
         when {
@@ -130,7 +133,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
     inner class BinarySearchTreeIterator internal constructor() : MutableIterator<T> {
 
-        private val stack = Stack<Node<T>>()
+        private val stack = ArrayDeque<Node<T>?>()
         private var current = root
         private var lastNext: Node<T>? = null
 
@@ -144,6 +147,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          *
          * Средняя
          */
+        //O(1)
         override fun hasNext(): Boolean = stack.isNotEmpty() || current != null
 
         /**
@@ -160,12 +164,15 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          * Средняя
          */
         override fun next(): T {
+            //Производительность O(N) - полностью зависит от высоты дерева. Т.к. дерево без балансировки, то
+            // в худшем случаи за линию.
+            //Ресурсоемкость O(N)
             while (current != null) {
-                stack.push(current)
+                stack.add(current)
                 current = current?.left
             }
             if (!hasNext()) throw NoSuchElementException()
-            current = stack.pop()
+            current = stack.removeLast()
             val value = current?.value
             lastNext = current!!
             current = current?.right
@@ -185,6 +192,8 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          * Сложная
          */
         override fun remove() {
+            //Производительность O(N) - полностью зависит от find(). Т.к. дерево без балансировки, то за линию
+            //Ресурсоемкость O(1)
             if (lastNext == null) throw IllegalStateException()
             remove(lastNext!!.value)
             lastNext = null

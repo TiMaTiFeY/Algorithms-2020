@@ -1,6 +1,7 @@
 package lesson4
 
 import java.util.*
+import kotlin.collections.ArrayDeque
 
 /**
  * Префиксное дерево для строк
@@ -86,27 +87,31 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
 
     inner class TrieIterator internal constructor() : MutableIterator<String> {
 
-        private val stack = Stack<Node>()
+        private val stack = ArrayDeque<Node>()
         private var current = root
         private val currentString = StringBuilder()
-        private val setNextCharsByNode = mutableMapOf<Node, Set<Char>>()
+        private val setOfNextCharsByNode = mutableMapOf<Node, Set<Char>>()
         private val lengthOnNode = mutableMapOf<Node, Int>()
         private var lastNext: String? = null
         private var count = 0
 
+        //Производительность O(1)
+        //Ресурсоемкость O(1)
         override fun hasNext(): Boolean = count < size
 
+        //Производительность O(N)
+        //Ресурсоемкость O(N)
         override fun next(): String {
             while (!current.children.keys.contains(0.toChar()) && current.children.keys.size != 0) {
                 //Если "развилка"
                 if (current.children.keys.size > 1) {
-                    stack.push(current)
+                    stack.add(current)
                 }
-                if (!setNextCharsByNode.containsKey(current)) {
-                    setNextCharsByNode[current] = current.children.keys
+                if (!setOfNextCharsByNode.containsKey(current)) {
+                    setOfNextCharsByNode[current] = current.children.keys
                 }
-                val char = setNextCharsByNode[current]!!.first()
-                setNextCharsByNode[current] = setNextCharsByNode[current]!! - char
+                val char = setOfNextCharsByNode[current]!!.first()
+                setOfNextCharsByNode[current] = setOfNextCharsByNode[current]!! - char
                 currentString.append(char)
                 lengthOnNode[current] = currentString.length - 1
                 current = current.children[char]!!
@@ -116,14 +121,14 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
 
             if (current.children.keys.size > 1) {
                 //Не на нижнем уровне: возвращаем строку и "курсор" сдвигаем на следующую ветку
-                if (!setNextCharsByNode.containsKey(current)) {
-                    setNextCharsByNode[current] = (current.children.keys - 0.toChar())
+                if (!setOfNextCharsByNode.containsKey(current)) {
+                    setOfNextCharsByNode[current] = (current.children.keys - 0.toChar())
                 }
-                val char = setNextCharsByNode[current]!!.first()
-                setNextCharsByNode[current] = setNextCharsByNode[current]!! - char
+                val char = setOfNextCharsByNode[current]!!.first()
+                setOfNextCharsByNode[current] = setOfNextCharsByNode[current]!! - char
                 //Пушим в стэк, т.к. в while не запушили current (current.children.keys.size != 0)
-                if (setNextCharsByNode[current]?.isNotEmpty()!!) {
-                    stack.push(current)
+                if (setOfNextCharsByNode[current]?.isNotEmpty()!!) {
+                    stack.add(current)
                 }
                 currentString.append(char)
                 lengthOnNode[current] = currentString.length - 1
@@ -131,13 +136,13 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
             } else {
                 //Нижний уровень дерева: возвращаем строку и "курсор" передвигаем на последнюю "развилку"
                 if (stack.isNotEmpty()) {
-                    current = stack.peek()
-                    val char = setNextCharsByNode[current]!!.first()
-                    setNextCharsByNode[current] = setNextCharsByNode[current]!! - char
+                    current = stack.last()
+                    val char = setOfNextCharsByNode[current]!!.first()
+                    setOfNextCharsByNode[current] = setOfNextCharsByNode[current]!! - char
                     currentString.delete(lengthOnNode[current]!!, currentString.length)
                     //Если у данной "развилки" все ветки пройдены
-                    if (setNextCharsByNode[current]!!.isEmpty()) {
-                        stack.pop()
+                    if (setOfNextCharsByNode[current]!!.isEmpty()) {
+                        stack.removeLast()
                     }
                     currentString.append(char)
                     current = current.children[char]!!
@@ -148,12 +153,12 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
             return result
         }
 
+        //Производительность O(N) - зависит от длины последнего удаленного элемента
+        //Ресурсоемкость O(1)
         override fun remove() {
             if (lastNext == null) throw IllegalStateException()
             if (remove(lastNext!!)) count--
             lastNext = null
         }
-
     }
-
 }
