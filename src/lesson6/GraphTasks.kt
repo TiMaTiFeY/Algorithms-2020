@@ -138,12 +138,8 @@ private fun Graph.primsAlg(gb: GraphBuilder, vertexes: MutableSet<Vertex>) {
         val probablyMinEdge = getConnections(vertex)
             .filter { it.value.begin !in vertexes || it.value.end !in vertexes }
             .minByOrNull { it.value.weight }?.value
-        if (minEdge == null) {
+        if (minEdge == null || probablyMinEdge != null && minEdge!!.weight > probablyMinEdge.weight) {
             minEdge = probablyMinEdge
-        } else {
-            if (probablyMinEdge != null && minEdge!!.weight > probablyMinEdge.weight) {
-                minEdge = probablyMinEdge
-            }
         }
     }
     if (minEdge != null) {
