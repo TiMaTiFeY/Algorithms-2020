@@ -44,6 +44,12 @@ class GraphBuilder {
         connections[end] = connections[end]?.let { it + edge } ?: setOf(edge)
     }
 
+    fun addConnection(edge: Edge) {
+        val edgeImpl = edge as EdgeImpl
+        connections[edgeImpl.begin] = connections[edgeImpl.begin]?.let { it + edgeImpl } ?: setOf(edgeImpl)
+        connections[edgeImpl.end] = connections[edgeImpl.end]?.let { it + edgeImpl } ?: setOf(edgeImpl)
+    }
+
     fun build(): Graph = object : Graph {
 
         override fun get(name: String): Vertex? = this@GraphBuilder.vertices[name]

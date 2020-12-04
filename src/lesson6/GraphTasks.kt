@@ -1,8 +1,8 @@
 @file:Suppress("UNUSED_PARAMETER", "unused")
-//НЕ СДЕЛАНО
 package lesson6
 
 import lesson6.Graph.*
+import lesson6.impl.GraphBuilder
 
 /**
  * Эйлеров цикл.
@@ -30,36 +30,36 @@ import lesson6.Graph.*
  * Справка: Эйлеров цикл -- это цикл, проходящий через все рёбра
  * связного графа ровно по одному разу
  */
-//fun Graph.dfs(start: Vertex, visited: MutableSet<Vertex>) {
-//    getConnections(start)
-//        .filter { it.value.end !in visited }
-//        .forEach {
-//            visited += start
-//            dfs(it.key, visited)
-//        }
-//}
-//
-//fun Graph.deg(vertex: Vertex): Int = this.getConnections(vertex).size
-//
-//fun checkForEulerPath(graph: Graph): Boolean {
-//    val oddVertex = graph.vertices.map { if (graph.deg(it) % 2 != 0) 1 else 0 }.sum()
-//    if (oddVertex > 2) {
-//        return false
-//    }
-//    val visited = mutableSetOf<Vertex>()
-//    for (vertex in graph.vertices) {
-//        if (graph.deg(vertex) > 0) {
-//            graph.dfs(vertex, visited)
-//            break
-//        }
-//    }
-//    for (vertex in graph.vertices) {
-//        if (graph.deg(vertex) > 0 && !visited.contains(vertex)) {
-//            return false
-//        }
-//    }
-//    return true
-//}
+/*fun Graph.dfs(start: Vertex, visited: MutableSet<Vertex>) {
+    getConnections(start)
+        .filter { it.value.end !in visited }
+        .forEach {
+            visited += start
+            dfs(it.key, visited)
+        }
+}
+
+fun Graph.deg(vertex: Vertex): Int = this.getConnections(vertex).size
+
+fun checkForEulerPath(graph: Graph): Boolean {
+    val oddVertex = graph.vertices.map { if (graph.deg(it) % 2 != 0) 1 else 0 }.sum()
+    if (oddVertex > 2) {
+        return false
+    }
+    val visited = mutableSetOf<Vertex>()
+    for (vertex in graph.vertices) {
+        if (graph.deg(vertex) > 0) {
+            graph.dfs(vertex, visited)
+            break
+        }
+    }
+    for (vertex in graph.vertices) {
+        if (graph.deg(vertex) > 0 && !visited.contains(vertex)) {
+            return false
+        }
+    }
+    return true
+}*/
 
 fun Graph.findEulerLoop(): List<Edge> {
 //    if (this.vertices.size < 3 || !checkForEulerPath(this)) return listOf()
@@ -123,7 +123,42 @@ fun Graph.findEulerLoop(): List<Edge> {
  * J ------------ K
  */
 fun Graph.minimumSpanningTree(): Graph {
-    TODO()
+    //Производительность O(E*log(V))
+    //Ресурсоемкость O(E+V)
+    val result = GraphBuilder()
+    val root = vertices.firstOrNull() ?: return result.build()
+    primsAlg(result, mutableSetOf(root))
+    return result.build()
+}
+
+private fun Graph.primsAlg(gb: GraphBuilder, vertexes: MutableSet<Vertex>) {
+    //Алгоритм Прима
+    var minEdge: Edge? = null
+    vertexes.forEach { vertex ->
+        val probablyMinEdge = getConnections(vertex)
+            .filter { it.value.begin !in vertexes || it.value.end !in vertexes }
+            .minByOrNull { it.value.weight }?.value
+        if (minEdge == null) {
+            minEdge = probablyMinEdge
+        } else {
+            if (probablyMinEdge != null && minEdge!!.weight > probablyMinEdge.weight) {
+                minEdge = probablyMinEdge
+            }
+        }
+    }
+    if (minEdge != null) {
+        if (minEdge!!.begin in vertexes) {
+            vertexes.add(minEdge!!.end)
+            gb.addVertex(minEdge!!.end.name)
+        } else {
+            vertexes.add(minEdge!!.begin)
+            gb.addVertex(minEdge!!.begin.name)
+        }
+        gb.addConnection(minEdge!!)
+        return primsAlg(gb, vertexes)
+    } else {
+        return
+    }
 }
 
 /**
@@ -177,7 +212,25 @@ fun Graph.largestIndependentVertexSet(): Set<Vertex> {
  * Ответ: A, E, J, K, D, C, H, G, B, F, I
  */
 fun Graph.longestSimplePath(): Path {
-    TODO()
+    //Производительность O(W*E)
+    //Ресурсоемкость O(W)
+    //W (ways) - количество путей; E - количетсво рёбер каждой вершины
+    var result = Path()
+    val possiblePaths = ArrayDeque<Path>()
+    vertices.forEach { possiblePaths.addLast(Path(it)) }
+    while (possiblePaths.isNotEmpty()) {
+        val currentPath = possiblePaths.removeLast()
+        if (result.length < currentPath.length) {
+            result = currentPath
+        }
+        val neighbours = getNeighbors(currentPath.vertices[currentPath.length])
+        neighbours.forEach {
+            if (it !in currentPath) {
+                possiblePaths.addLast(Path(currentPath, this, it))
+            }
+        }
+    }
+    return result
 }
 
 /**
